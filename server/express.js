@@ -8,6 +8,7 @@ import { body } from 'min-document'
 import Template from '../template'
 import userRoutes from './routes/user.routes'
 import authRoutes from './routes/auth.routes'
+import path from 'path'
 
 //comment out before building for production
 import devBundle from './devBundle'

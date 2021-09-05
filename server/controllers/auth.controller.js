@@ -2,21 +2,30 @@ import User from '../models/user.model'
 import jwt from 'jsonwebtoken'
 import expressJwt from 'express-jwt'
 import config from './../../config/config'
-import { resolve } from 'uri-js'
 
 const signin = async(req, res) => {
     try {
-        let user = await User.findOne({ "email": req.body.email })
+        let user = await User.findOne({
+            "email": req.body.email
+        })
         if (!user)
-            return res.status('401').json({ error: "User not found" })
+            return res.status('401').json({
+                error: "User not found"
+            })
 
         if (!user.authenticate(req.body.password)) {
-            return res.status('401').send({ error: "Email and password don't match" })
+            return res.status('401').send({
+                error: "Email and password don't match."
+            })
         }
 
-        const token = jwt.sign({ _id: user._id }, config.jwtSecret)
+        const token = jwt.sign({
+            _id: user._id
+        }, config.jwtSecret)
 
-        res.cookie('t', token, { expire: new Date() + 9999 })
+        res.cookie("t", token, {
+            expire: new Date() + 9999
+        })
 
         return res.json({
             token,
@@ -26,8 +35,13 @@ const signin = async(req, res) => {
                 email: user.email
             }
         })
+
     } catch (err) {
-        return res.status('401').json({ error: "Could not sign in" })
+
+        return res.status('401').json({
+            error: "Could not sign in"
+        })
+
     }
 }
 
@@ -38,13 +52,14 @@ const signout = (req, res) => {
     })
 }
 
-const requiresSignIn = expressJwt({
+const requireSignin = expressJwt({
     secret: config.jwtSecret,
-    userProperty: 'auth'
+    userProperty: 'auth',
+    algorithms: ['RS256']
 })
 
 const hasAuthorization = (req, res, next) => {
-    const hasAuthorization = req.profile && req.auth && req.profile._id == req.auth._id
+    const authorized = req.profile && req.auth && req.profile._id == req.auth._id
     if (!(authorized)) {
         return res.status('403').json({
             error: "User is not authorized"
@@ -53,4 +68,9 @@ const hasAuthorization = (req, res, next) => {
     next()
 }
 
-export default { signin, signout, requireSignin, hasAuthorization }
+export default {
+    signin,
+    signout,
+    requireSignin,
+    hasAuthorization
+}
