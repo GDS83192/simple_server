@@ -10,6 +10,8 @@
     },
     "dependencies": {
         "@hot-loader/react-dom": "16.13.0",
+        "@material-ui/core": "^4.12.3",
+        "@material-ui/icons": "^4.11.2",
         "body-parser": "^1.19.0",
         "compression": "^1.7.4",
         "cookie-parser": "^1.4.5",
@@ -19,15 +21,18 @@
         "helmet": "^4.6.0",
         "jsonwebtoken": "^8.5.1",
         "mongodb": "3.5.5",
-        "react": "16.13.1",
-        "react-dom": "16.13.1",
-        "react-hot-loader": "4.12.20"
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-hot-loader": "4.12.20",
+        "react-router": "^5.2.1",
+        "react-router-dom": "^5.3.0"
     },
     "devDependencies": {
         "@babel/core": "^7.15.4",
         "@babel/preset-env": "^7.15.4",
         "@babel/preset-react": "7.9.4",
         "babel-loader": "^8.2.2",
+        "file-loader": "^6.2.0",
         "nodemon": "2.0.2",
         "webpack": "^5.52.0",
         "webpack-cli": "^4.8.0",
