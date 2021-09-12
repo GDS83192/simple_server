@@ -9,7 +9,7 @@ mongoose.connection.on('error', () => {
     throw new Error(`unable to connect to database: ${config.mongoUri}`)
 })
 
-app.listen(config.port, (err) => {
+app.listen(3000, (err) => {
     if (err) {
         console.log(err)
     }

@@ -66,3 +66,4 @@ export default function DeleteUser(props) {
 DeleteUser.propTypes = {
   userId: PropTypes.string.isRequired
 }
+
