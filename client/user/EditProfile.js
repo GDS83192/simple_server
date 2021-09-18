@@ -69,21 +69,33 @@ export default function EditProfile({ match }) {
   }, [match.params.userId])
 
   const clickSubmit = () => {
+      let userData = new FormData()
+      values.name && userData.append('name', values.name)
+      values.email && userData.append('email', values.email)
+      values.password && userData.append('password', values.password)
+      values.about && userData.append('about', values.about)
+      values.photo && userData.append('photo', values.photo)
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
       password: values.password || undefined
     }
+
+    const handleChange = name => event => {
+        const value = name === "photo" ? event.target.files[0] : event.target.value 
+        setValues({...values, [name]: value})
+    }
+
     update({
-      userId: match.params.userId
+        userId: match.params.userId
     }, {
-      t: jwt.token
-    }, user).then((data) => {
-      if (data && data.error) {
-        setValues({...values, error: data.error})
-      } else {
-        setValues({...values, userId: data._id, redirectToProfile: true})
-      }
+        t: jwt.token
+    }, userData).then((data) => {
+        if (data && data.error) {
+            setValues({...values, error: data.error})
+        } else {
+            setValues({...values, 'redirectToProfile': true})
+        }
     })
   }
   const handleChange = name => event => {
@@ -102,6 +114,22 @@ export default function EditProfile({ match }) {
           <TextField id="name" label="Name" className={classes.textField} value={values.name} onChange={handleChange('name')} margin="normal"/><br/>
           <TextField id="email" type="email" label="Email" className={classes.textField} value={values.email} onChange={handleChange('email')} margin="normal"/><br/>
           <TextField id="password" type="password" label="Password" className={classes.textField} value={values.password} onChange={handleChange('password')} margin="normal"/>
+          <TextField
+              id="multiline-flexible"
+              label="About"
+              multiline
+              rows="2"
+              value={values.about}
+              onChange={handleChange('about')}
+          />
+          <label htmlFor="icon-button-file">
+              <Button variant="contained" color="default" component="span">
+                  Upload <FileUpload/>
+              </Button>
+          </label>
+          <span className={classes.filename}>
+              {values.photo ? values.photo.name : ''}
+          </span>
           <br/> {
             values.error && (<Typography component="p" color="error">
               <Icon color="error" className={classes.error}>error</Icon>

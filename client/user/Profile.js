@@ -27,14 +27,29 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginTop: theme.spacing(3),
     color: theme.palette.protectedTitle
+  },
+  bigAvatar: {
+      width: 60,
+      height: 60,
+      margin: 10
   }
 }))
 
 export default function Profile({ match }) {
   const classes = useStyles()
+  const [values, setValues] = useState({
+      user: {following:[], followers:[]},
+      redirectToSignin: false,
+      following: false
+
+  })
+
+  
   const [user, setUser] = useState({})
   const [redirectToSignin, setRedirectToSignin] = useState(false)
   const jwt = auth.isAuthenticated()
+
+  
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -44,21 +59,50 @@ export default function Profile({ match }) {
       userId: match.params.userId
     }, {t: jwt.token}, signal).then((data) => {
       if (data && data.error) {
-        setRedirectToSignin(true)
+        setValues({...values, redirectToSignin: true})
       } else {
-        setUser(data)
+        let following = checkFollow(data)
+        setValues({...values, user: data, following: following})
+        loadPosts(data._id)
       }
     })
-
     return function cleanup(){
       abortController.abort()
     }
 
   }, [match.params.userId])
   
-    if (redirectToSignin) {
+  const photoUrl = values.user._id
+              ? `/api/users/photo/${values.user._id}?${new Date().getTime()}`
+              : '/api/users/defaultphoto'
+    if (values.redirectToSignin) {
       return <Redirect to='/signin'/>
     }
+
+    let following = checkFollow(data)
+    setValues({...values, user: data, following: following})
+
+    const checkFollow = (user) => {
+        const match = user.followers.some((follower) => {
+            return follower._id == jwt.user._id
+        })
+        return match
+    }
+
+    const clickFollowButton = (callApi) => {
+      callApi({
+        userId: jwt.user._id
+      }, {
+        t: jwt.token
+      }, values.user._id).then((data) => {
+        if (data.error) {
+          setValues({...values, error: data.error})
+        } else {
+          setValues({...values, user: data, following: !values.following})
+        }
+      })
+    }
+
     return (
       <Paper className={classes.root} elevation={4}>
         <Typography variant="h6" className={classes.title}>
@@ -67,7 +111,7 @@ export default function Profile({ match }) {
         <List dense>
           <ListItem>
             <ListItemAvatar>
-              <Avatar>
+              <Avatar src={photoUrl} className={classes.bigAvatar}>
                 <Person/>
               </Avatar>
             </ListItemAvatar>
@@ -80,13 +124,16 @@ export default function Profile({ match }) {
                   </IconButton>
                 </Link>
                 <DeleteUser userId={user._id}/>
-              </ListItemSecondaryAction>)
+              </ListItemSecondaryAction>) : (<FollowProfileButton following={values.following} onButtonClick={clickFollowButton}/>)
             }
           </ListItem>
           <Divider/>
           <ListItem>
             <ListItemText primary={"Joined: " + (
               new Date(user.created)).toDateString()}/>
+          </ListItem>
+          <ListItem>
+              <ListItemText primary={this.state.user.about}/>
           </ListItem>
         </List>
       </Paper>
